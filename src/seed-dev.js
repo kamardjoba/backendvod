@@ -1,7 +1,6 @@
-import bcrypt from 'bcrypt';
 import { connectDb, disconnectDb } from './db.js';
 import { config } from './config.js';
-import { User } from './models/index.js';
+import { bootstrapFirstAdminIfNeeded } from './services/bootstrapAdmin.js';
 
 async function seed() {
   if (!config.seedDev && config.nodeEnv === 'production') {
@@ -9,22 +8,7 @@ async function seed() {
     return;
   }
 
-  const adminEmail = config.admin.email.toLowerCase();
-  const existing = await User.findOne({ email: adminEmail });
-  if (!existing) {
-    const hash = await bcrypt.hash(config.admin.password, 12);
-    await User.create({
-      first_name: config.admin.firstName,
-      last_name: config.admin.lastName,
-      email: adminEmail,
-      password_hash: hash,
-      role: 'administrator',
-      is_active: true,
-    });
-    console.log(`Admin created: ${adminEmail}`);
-  } else {
-    console.log('Admin already exists.');
-  }
+  await bootstrapFirstAdminIfNeeded();
 }
 
 await connectDb();

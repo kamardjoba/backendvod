@@ -8,7 +8,8 @@
     "dev": "node --watch src/index.js",
     "dev:mock": "node --watch src/index-mock.js",
     "migrate": "node src/migrate.js",
-    "seed:dev": "SEED_DEV=true node src/seed-dev.js"
+    "seed:dev": "SEED_DEV=true node src/seed-dev.js",
+    "bootstrap:admin": "node src/bootstrap-admin.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

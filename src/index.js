@@ -13,6 +13,7 @@ import driverRoutes from './routes/driver.js';
 import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
 import { startNotificationScheduler } from './jobs/notificationScheduler.js';
+import { bootstrapFirstAdminIfNeeded } from './services/bootstrapAdmin.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -124,6 +125,15 @@ try {
     err?.message ?? err,
   );
   process.exit(1);
+}
+
+if (config.nodeEnv === 'production') {
+  try {
+    await bootstrapFirstAdminIfNeeded();
+  } catch (err) {
+    console.error('[startup] STOP: could not bootstrap first administrator.', err?.message ?? err);
+    process.exit(1);
+  }
 }
 
 startNotificationScheduler(io);
