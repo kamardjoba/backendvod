@@ -19,5 +19,5 @@ export const config = {
 };
 
 if (!config.mongodbUri) {
-  console.warn('MONGODB_URI is not set. Database operations will fail until configured.');
+  console.warn('[config] MONGODB_URI is not set — connectDb will fail at step 1.');
 }

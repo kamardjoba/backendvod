@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import http from 'http';
 import { Server } from 'socket.io';
 import { config } from './config.js';
-import { connectDb } from './db.js';
+import { connectDb, describeMongoUri } from './db.js';
 import authRoutes from './routes/auth.js';
 import driverRoutes from './routes/driver.js';
 import adminRoutes from './routes/admin.js';
@@ -41,6 +41,13 @@ app.use(cors({
 
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+
+console.log(
+  '[startup] session store (connect-mongo):',
+  config.mongodbUri
+    ? describeMongoUri(config.mongodbUri)
+    : 'MONGODB_URI missing — sessions will fail on first use',
+);
 
 app.use(
   session({
@@ -87,9 +94,19 @@ io.on('connection', (socket) => {
   });
 });
 
-await connectDb();
+console.log('[startup] connecting to MongoDB before serving traffic...');
+try {
+  await connectDb();
+} catch (err) {
+  console.error(
+    '[startup] STOP: could not connect to MongoDB. Fix MONGODB_URI / network / Atlas IP allowlist.',
+    err?.message ?? err,
+  );
+  process.exit(1);
+}
+
 startNotificationScheduler(io);
 
 server.listen(config.port, () => {
-  console.log(`DriverRest API listening on port ${config.port}`);
+  console.log(`[startup] DriverRest API listening on port ${config.port}`);
 });
