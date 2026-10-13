@@ -7,7 +7,11 @@ export const config = {
   port: Number(process.env.PORT || 3001),
   mongodbUri: process.env.MONGODB_URI,
   sessionSecret: process.env.SESSION_SECRET || 'dev-insecure-secret',
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  /** Один origin или несколько через запятую (Netlify + localhost для отладки). */
+  clientOrigins: (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean),
   defaultTimezone: process.env.DEFAULT_TIMEZONE || 'Europe/Warsaw',
   seedDev: process.env.SEED_DEV === 'true',
   admin: {
